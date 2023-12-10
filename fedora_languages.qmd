@@ -18,15 +18,6 @@ library(logger)
 ```
 
 ```{r}
-#| eval: false
-#| 
-data <- read_rds('data_prepared/versions.rds')
-
-arrow::write_feather(data,
-              'data_prepared/versions.feather')
-```
-
-```{r}
 data <- arrow::read_feather('data_prepared/versions.feather')
 ```
 

@@ -47,7 +47,6 @@ get_df_for_a_lang_file <- function(lang_file_path) {
 # test_df <- get_df_for_a_lang_file('data_raw/2023-11-23/f16/languages/fr.json')
 ```
 
-
 ```{r}
 # Function for reading a single Fedora version and returning a single dataframe:
 
@@ -144,7 +143,6 @@ versions_df <- bind_rows(df_list_for_versions,
 ```
 
 ```{r}
-write_rds(versions_df,
-          'data_prepared/versions.rds')
+arrow::write_feather(versions_df,
+                     'data_prepared/versions.feather')
 ```
-
