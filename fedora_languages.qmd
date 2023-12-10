@@ -1,0 +1,108 @@
+---
+title: "Fedora languages"
+format:
+  html:
+    echo: false
+editor: visual
+editor_options: 
+  chunk_output_type: console
+---
+
+## Fedora languages
+
+```{r}
+#| message: false
+library(tidyverse)
+
+library(logger)
+```
+
+```{r}
+#| eval: false
+#| 
+data <- read_rds('data_prepared/versions.rds')
+
+arrow::write_feather(data,
+              'data_prepared/versions.feather')
+```
+
+```{r}
+data <- arrow::read_feather('data_prepared/versions.feather')
+```
+
+### Exploratory
+
+```{r}
+french_data <- data |>
+  filter(json_file == "fr.json")
+
+french_data <- french_data |>
+  mutate(version = fct_inorder(version))
+
+french_data <- french_data |>
+  mutate(filename_short = str_remove(filename, ".*packages/"))
+```
+
+```{r}
+french_data |>
+  group_by(filename_short) |>
+  arrange(version) |>
+  mutate(min_version = first(version),
+         is_in_nb_version = n_distinct(version)) |>
+  ungroup() |>
+  arrange(min_version,
+          desc(is_in_nb_version)) |>
+  ggplot(aes(x = version,
+             y = fct_inorder(filename_short),
+             color = 'white',
+             fill = log1p(translated))) +
+  geom_raster() +
+  theme(axis.text.y = element_blank(),
+        axis.ticks.y = element_blank(),
+        legend.position = 'top')
+```
+
+```{r}
+# which files are in all versions?
+
+french_data |>
+  group_by(filename_short) |>
+  summarise(is_in_nb_versions = n_distinct(version)) |>
+  ungroup() ->
+  counting_versions_of_filenames
+```
+
+```{r}
+counting_versions_of_filenames |>
+  ggplot(aes(x = is_in_nb_versions)) +
+  geom_histogram(binwidth = 1) +
+  labs(title = "filenames: number of versions they are in",
+       subtitle = "(for French)")
+```
+
+```{r}
+package_data_french <- french_data |>
+  group_by(version, package) |>
+  summarise(nb_translated = sum(translated, na.rm = TRUE)) |>
+  ungroup()
+  
+package_data_french |>
+  ggplot(aes(x = version,
+             y = fct_inorder(package),
+             color = 'white',
+             fill = log1p(nb_translated))) +
+  geom_raster() +
+  theme(axis.text.y = element_blank(),
+        axis.ticks.y = element_blank(),
+        legend.position = 'top')
+```
+
+```{r}
+# which packages are in all versions?
+
+package_data_french |>
+  group_by(package) |>
+  summarise(is_in_nb_version = n_distinct(version)) |>
+  ungroup() ->
+  counting_versions_of_packages
+```
