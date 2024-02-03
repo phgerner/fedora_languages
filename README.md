@@ -1,4 +1,6 @@
-# Preparing data for Fedora languages study
+# Study of Fedora languages
+
+## Data preparation
 
 Language: R
 
